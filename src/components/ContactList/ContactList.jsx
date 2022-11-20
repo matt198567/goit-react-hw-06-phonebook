@@ -1,39 +1,36 @@
-import PropTypes from 'prop-types';
 import s from './ContactList.module.css';
-import { BsFillTrashFill } from 'react-icons/bs';
+import { ContactItem } from '../ContactItem/ContactItem';
+import { useSelector } from 'react-redux';
 import Container from 'components/Container/Container';
+import { getContacts, getFilter } from 'redux/contactsSlice';
 
-function ContactList({ contacts, onDeleteContact }) {
+export const ContactList = () => {
+  const filter = useSelector(getFilter);
+  const contacts = useSelector(getContacts);
+
+  const getFilteredContacts = () => {
+    const normalizedFilter = filter.toLowerCase();
+    return contacts.filter(contact =>
+      contact.name.toLowerCase().includes(normalizedFilter)
+    );
+  };
+  const filteredContacts = getFilteredContacts();
   return (
     <Container>
-      <ul className={s.list}>
-        {contacts.map(({ id, name, number }) => (
-          <li className={s.item} key={id}>
-            <p className={s.info}>
-              {name}: {number}
-            </p>
-            <BsFillTrashFill
-              size={22}
-              className={s.btn}
-              type="button"
-              onClick={() => onDeleteContact(id)}
-            />
-          </li>
-        ))}
-      </ul>
+      {filteredContacts.map(contact => {
+        const { name, number, id } = contact;
+        return (
+          <ContactItem
+            className={s.list}
+            name={name}
+            number={number}
+            id={id}
+            key={id}
+          />
+        );
+      })}
     </Container>
   );
-}
-
-ContactList.propTypes = {
-  contacts: PropTypes.arrayOf(
-    PropTypes.shape({
-      id: PropTypes.string.isRequired,
-      name: PropTypes.string.isRequired,
-      number: PropTypes.string.isRequired,
-    })
-  ),
-  onDeleteContact: PropTypes.func.isRequired,
 };
 
 export default ContactList;
